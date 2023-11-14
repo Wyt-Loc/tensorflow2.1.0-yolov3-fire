@@ -1,0 +1,9 @@
+import os,glob
+path = r"C:\Users\TSK\Desktop\yolo_tf2.1\VOCdevkit_fire\VOC2012\JPEGImages"
+path_list=os.listdir(path)
+path_list.sort()
+print(len(path_list))
+for i in path_list[0:320] :
+       print(i[:-4]+" -1")
+for i in path_list[320:-1] :
+       print(i[:-4]+" -1")

@@ -1,0 +1,52 @@
+一 ·利用官方权重进行识别
+1·查看自己的显卡
+2·搭建tensorflow2.0-cpu/gpu 开发环境
+//：https://blog.csdn.net/weixin_44170512/article/details/103990592
+3·win+R 输入cmd 
+使用cd命令进入到目标文件夹
+4·输入 python convert.py 生成tf可用的模型
+5·识别
+对图片进行预测，并且输出
+python detect.py --image ./data/people.jpg
+打开摄像头进行预测
+python detect_video.py --video 0
+对视频流进行预测，并且输出
+python detect_video.py --video test.mp4 --output ./test_output.avi
+
+二·训练自己的模型，并且识别
+1·建立数据集文件夹
+2·添加图片并且标注（labellmg软件）
+   生成txt文件
+4·建立标签文件
+fire_voc2012.names
+
+
+3·生成tfrecord文件（train和val）
+python tools/voc2012.py  --data_dir ./VOCdevkit_fire/VOC2012 --split  train --output_file ./data/voc2012_train_fire.tfrecord --classes ./data/fire_voc2012.names
+
+python tools/voc2012.py  --data_dir ./VOCdevkit_fire/VOC2012 --split  val  --output_file ./data/voc2012_val_fire.tfrecord --classes ./data/fire_voc2012.names
+
+5·进行迁移训练
+python train.py  --dataset   ./data/voc2012_train_fire.tfrecord --val_dataset ./data/voc2012_val_fire.tfrecord  --classes ./data/fire_voc2012.names  --num_classes  1
+--mode  fit  --transfer  darknet  --batch_size 4 --epochs 20 --weights ./checkpoints/yolov3.tf 
+--weights_num_classes  80 
+6·进行模型测试
+python detect.py  --classes  ./data/fire_voc2012.names  --num_classes 1 --weights ./checkpoints/yolov3_train_20.tf  --image ./fire.jpg 
+ 
+--yolo_score_threshold 0.3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
