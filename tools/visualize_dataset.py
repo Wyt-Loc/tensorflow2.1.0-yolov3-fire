@@ -1,3 +1,7 @@
+import sys
+
+sys.path.append('./')
+
 import time
 from absl import app, flags, logging
 from absl.flags import FLAGS
@@ -10,6 +14,7 @@ from yolov3_tf2.models import (
 )
 from yolov3_tf2.dataset import transform_images, load_tfrecord_dataset
 from yolov3_tf2.utils import draw_outputs
+
 flags.DEFINE_string('classes', './data/coco.names', 'path to classes file')
 flags.DEFINE_integer('size', 416, 'resize images to')
 flags.DEFINE_string(

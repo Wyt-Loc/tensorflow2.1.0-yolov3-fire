@@ -10,10 +10,11 @@ from yolov3_tf2.models import (
 )
 from yolov3_tf2.dataset import transform_images, load_tfrecord_dataset
 from yolov3_tf2.utils import draw_outputs
-flags.DEFINE_string('classes', './data/coco.names', 'path to classes file')
+
+flags.DEFINE_string('classes', './data/fire_voc2012.names', 'path to classes file')
 flags.DEFINE_integer('size', 416, 'resize images to')
 flags.DEFINE_string(
-    'dataset', './data/fire_voc2012_train.tfrecord', 'path to dataset')
+    'dataset', './data/voc2012_train_fire.tfrecord', 'path to dataset')
 flags.DEFINE_string('output', './output.jpg', 'path to output image')
 
 
@@ -48,9 +49,9 @@ def main(_argv):
 
         img = cv2.cvtColor(image.numpy(), cv2.COLOR_RGB2BGR)
         img = draw_outputs(img, (boxes, scores, classes, nums), class_names)
-        cv2.imshow("output",img)
+        cv2.imshow("output", img)
         cv2.imwrite(FLAGS.output, img)
-        
+
         cv2.waitKey(0)
         logging.info('output saved to: {}'.format(FLAGS.output))
 
