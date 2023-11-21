@@ -14,7 +14,7 @@ flags.DEFINE_string('weights', './checkpoints/yolov3_train_18.tf',
                     'path to weights file')
 flags.DEFINE_boolean('tiny', False, 'yolov3 or yolov3-tiny')
 flags.DEFINE_integer('size', 416, 'resize images to')
-flags.DEFINE_string('video', '0',  # './data/fire.mp4',
+flags.DEFINE_string('video', '1',  # './data/fire.mp4',
                     'path to video file or number for webcam)')
 flags.DEFINE_string('output', None, 'path to output video')
 flags.DEFINE_string('output_format', 'XVID', 'codec used in VideoWriter when saving video to file')

@@ -39,27 +39,28 @@ def main(_argv):
         tf.config.experimental.set_memory_growth(physical_devices[0], True)
 
     yolo = YoloV3(classes=2)
-    yolo.load_weights('./checkpoints/yolov3_train_18.tf').expect_partial()
+    yolo.load_weights(
+        r'F:\CreatCar\wyt_data\Python\tensorflow\yolo_tf2.1\checkpoints\yolov3_train_18.tf').expect_partial()
     logging.info('weights loaded')
 
-    class_names = [c.strip() for c in open('./data/fire_voc2012.names').readlines()]
+    class_names = [c.strip() for c in
+                   open(r'F:\CreatCar\wyt_data\Python\tensorflow\yolo_tf2.1\data\fire_voc2012.names').readlines()]
     logging.info('classes loaded')
 
     while True:
-        print("执行了几次了\n")
         with open(r"F:\CreatCar\wyt_data\Python\tensorflow\Imagetransmission\RecognizingImages\isok.txt", 'r+',
                   encoding='utf-8') as f:
             data = f.readline()
-            if data == "2":
+            if data == "0":
                 f.close()
                 file = open(r"F:\CreatCar\wyt_data\Python\tensorflow\Imagetransmission\RecognizingImages\isok.txt", "w")
-                file.write('0')
+                file.write('1')
                 file.close()
-                print("写入0")
-                time.sleep(1)
+                print("写入1")
+                time.sleep(0.1)
             else:
                 f.close()
-                time.sleep(1)
+                time.sleep(0.1)
         try:
             img_raw = tf.image.decode_image(
                 open(r'../Imagetransmission/RecognizingImages/rece{}.jpg'.format(js), 'rb').read(),
@@ -87,9 +88,6 @@ def main(_argv):
         cv2.imwrite('./output{}.jpg'.format(js), img)
 
         logging.info('output saved to: {0}{1}'.format('./output.jpg', js))
-
-        # 处理完一次删除本次
-        # os.remove()
 
 
 if __name__ == '__main__':

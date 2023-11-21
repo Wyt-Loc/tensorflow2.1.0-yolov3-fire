@@ -24,8 +24,8 @@ from .utils import broadcast_iou
 
 flags.DEFINE_integer('yolo_max_boxes', 250,
                      'maximum number of boxes per image')
-flags.DEFINE_float('yolo_iou_threshold', 0.2, 'iou threshold')
-flags.DEFINE_float('yolo_score_threshold', 0.2, 'score threshold')
+flags.DEFINE_float('yolo_iou_threshold', 0.1, 'iou threshold')
+flags.DEFINE_float('yolo_score_threshold', 0.1, 'score threshold')
 
 yolo_anchors = np.array([(10, 13), (16, 30), (33, 23), (30, 61), (62, 45),
                          (59, 119), (116, 90), (156, 198), (373, 326)],
@@ -33,12 +33,12 @@ yolo_anchors = np.array([(10, 13), (16, 30), (33, 23), (30, 61), (62, 45),
 yolo_anchor_masks = np.array([[6, 7, 8], [3, 4, 5], [0, 1, 2]])
 
 yolo_tiny_anchors = np.array([(10, 14), (23, 27), (37, 58),
-                              (81, 82), (135, 169),  (344, 319)],
+                              (81, 82), (135, 169), (344, 319)],
                              np.float32) / 416
 yolo_tiny_anchor_masks = np.array([[3, 4, 5], [0, 1, 2]])
 
 
-def DarknetConv(x, filters, size, strides=1, batch_norm=True): #Darknet卷积
+def DarknetConv(x, filters, size, strides=1, batch_norm=True):  # Darknet卷积
     if strides == 1:
         padding = 'same'
     else:
@@ -61,14 +61,14 @@ def DarknetResidual(x, filters):
     return x
 
 
-def DarknetBlock(x, filters, blocks): #卷积块
+def DarknetBlock(x, filters, blocks):  # 卷积块
     x = DarknetConv(x, filters, 3, strides=2)
     for _ in range(blocks):
         x = DarknetResidual(x, filters)
     return x
 
 
-def Darknet(name=None):#Darknet 主体部分
+def Darknet(name=None):  # Darknet 主体部分
     x = inputs = Input([None, None, 3])
     x = DarknetConv(x, 32, 3)
     x = DarknetBlock(x, 64, 1)
@@ -116,6 +116,7 @@ def YoloConv(filters, name=None):
         x = DarknetConv(x, filters * 2, 3)
         x = DarknetConv(x, filters, 1)
         return Model(inputs, x, name=name)(x_in)
+
     return yolo_conv
 
 
@@ -134,6 +135,7 @@ def YoloConvTiny(filters, name=None):
             x = DarknetConv(x, filters, 1)
 
         return Model(inputs, x, name=name)(x_in)
+
     return yolo_conv
 
 
@@ -145,6 +147,7 @@ def YoloOutput(filters, anchors, classes, name=None):
         x = Lambda(lambda x: tf.reshape(x, (-1, tf.shape(x)[1], tf.shape(x)[2],
                                             anchors, classes + 5)))(x)
         return tf.keras.Model(inputs, x, name=name)(x_in)
+
     return yolo_output
 
 
@@ -164,7 +167,7 @@ def yolo_boxes(pred, anchors, classes):
     grid = tf.expand_dims(tf.stack(grid, axis=-1), axis=2)  # [gx, gy, 1, 2]
 
     box_xy = (box_xy + tf.cast(grid, tf.float32)) / \
-        tf.cast(grid_size, tf.float32)
+             tf.cast(grid_size, tf.float32)
     box_wh = tf.exp(box_wh) * anchors
 
     box_x1y1 = box_xy - box_wh / 2
@@ -280,7 +283,7 @@ def YoloLoss(anchors, classes=80, ignore_thresh=0.5):
         grid = tf.meshgrid(tf.range(grid_size), tf.range(grid_size))
         grid = tf.expand_dims(tf.stack(grid, axis=-1), axis=2)
         true_xy = true_xy * tf.cast(grid_size, tf.float32) - \
-            tf.cast(grid, tf.float32)
+                  tf.cast(grid, tf.float32)
         true_wh = tf.math.log(true_wh / anchors)
         true_wh = tf.where(tf.math.is_inf(true_wh),
                            tf.zeros_like(true_wh), true_wh)
@@ -297,12 +300,12 @@ def YoloLoss(anchors, classes=80, ignore_thresh=0.5):
 
         # 5. calculate all losses
         xy_loss = obj_mask * box_loss_scale * \
-            tf.reduce_sum(tf.square(true_xy - pred_xy), axis=-1)
+                  tf.reduce_sum(tf.square(true_xy - pred_xy), axis=-1)
         wh_loss = obj_mask * box_loss_scale * \
-            tf.reduce_sum(tf.square(true_wh - pred_wh), axis=-1)
+                  tf.reduce_sum(tf.square(true_wh - pred_wh), axis=-1)
         obj_loss = binary_crossentropy(true_obj, pred_obj)
         obj_loss = obj_mask * obj_loss + \
-            (1 - obj_mask) * ignore_mask * obj_loss
+                   (1 - obj_mask) * ignore_mask * obj_loss
         # TODO: use binary_crossentropy instead
         class_loss = obj_mask * sparse_categorical_crossentropy(
             true_class_idx, pred_class)
@@ -314,4 +317,5 @@ def YoloLoss(anchors, classes=80, ignore_thresh=0.5):
         class_loss = tf.reduce_sum(class_loss, axis=(1, 2, 3))
 
         return xy_loss + wh_loss + obj_loss + class_loss
+
     return yolo_loss
